@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="com.sikri.redis_orm.compiler.main" target="1.8" />
+      <module name="com.sikri.redis_orm.compiler.test" target="1.8" />
+      <module name="com.sikri.redis_orm.example.main" target="1.8" />
+      <module name="com.sikri.redis_orm.example.test" target="1.8" />
+      <module name="com.sikri.redis_orm.RxRedisOrm.main" target="1.8" />
+      <module name="com.sikri.redis_orm.RxRedisOrm.test" target="1.8" />
+      <module name="IdeaProjects.RxRedisOrm.main" target="1.8" />
+      <module name="IdeaProjects.RxRedisOrm.test" target="1.8" />
+      <module name="RxRedisOrm.compiler.main" target="1.8" />
+      <module name="RxRedisOrm.compiler.test" target="1.8" />
+      <module name="RxRedisOrm.example.main" target="1.8" />
+      <module name="RxRedisOrm.example.test" target="1.8" />
+      <module name="RxRedisOrm.main" target="1.8" />
+      <module name="RxRedisOrm.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

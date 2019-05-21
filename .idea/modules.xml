@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IdeaProjects.RxRedisOrm.main.iml" filepath="$PROJECT_DIR$/.idea/modules/IdeaProjects.RxRedisOrm.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IdeaProjects.RxRedisOrm.test.iml" filepath="$PROJECT_DIR$/.idea/modules/IdeaProjects.RxRedisOrm.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RxRedisOrm.iml" filepath="$PROJECT_DIR$/RxRedisOrm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.main.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.test.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/RxRedisOrm.compiler.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.iml" filepath="$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.main.iml" filepath="$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.test.iml" filepath="$PROJECT_DIR$/.idea/modules/example/RxRedisOrm.example.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RxRedisOrm.main.iml" filepath="$PROJECT_DIR$/.idea/modules/RxRedisOrm.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RxRedisOrm.test.iml" filepath="$PROJECT_DIR$/.idea/modules/RxRedisOrm.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.iml" filepath="$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.sikri.redis_orm.RxRedisOrm.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.main.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.test.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler/com.sikri.redis_orm.compiler.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.iml" filepath="$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.main.iml" filepath="$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.test.iml" filepath="$PROJECT_DIR$/.idea/modules/example/com.sikri.redis_orm.example.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/compiler.iml" filepath="$PROJECT_DIR$/.idea/modules/compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example.iml" filepath="$PROJECT_DIR$/.idea/modules/example.iml" />
+    </modules>
+  </component>
+</project>
