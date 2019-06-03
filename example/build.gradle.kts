@@ -6,7 +6,7 @@ plugins {
 dependencies {
     compile(kotlin("stdlib"))
     compile(kotlin("reflect"))
-    compile(group = "com.tylerthrailkill.helpers", name = "pretty-print", version = "2.02")
+    compile("com.tylerthrailkill.helpers:pretty-print:2.0.2")
 
     compileOnly(project(":compiler"))
     annotationProcessor(project(":compiler"))
