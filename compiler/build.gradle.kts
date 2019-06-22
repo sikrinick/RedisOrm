@@ -1,11 +1,15 @@
+
 plugins {
     kotlin("jvm")
+    kotlin("kapt")
 }
 
 dependencies {
-    compile(kotlin("stdlib"))
-    compile("com.squareup:kotlinpoet:1.1.0")
-    compile("io.reactivex.rxjava2:rxjava:2.2.0")
+    api(kotlin("stdlib"))
+    implementation("com.squareup:kotlinpoet:1.1.0")
 
-    testCompile(group = "junit", name = "junit", version = "4.12")
+    implementation("com.google.auto.service:auto-service:1.0-rc4")
+    kapt("com.google.auto.service:auto-service:1.0-rc4")
+
+    testImplementation(group = "junit", name = "junit", version = "4.12")
 }

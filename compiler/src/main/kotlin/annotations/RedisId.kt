@@ -1,6 +1,6 @@
 package com.sikrinick.redis_orm.annotations
 
 
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class RedisId
