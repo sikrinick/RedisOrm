@@ -22,7 +22,7 @@ suspend fun main() {
         HAEngine::class,
         Stb::class
     )
-    redisOrm.subscribe<Device>().collect { device ->
+    redisOrm.observeAll<Device>().collect { device ->
         println(device)
     }
     redisOrm.start()
@@ -31,7 +31,10 @@ suspend fun main() {
 
 class MockRedisClient: RedisClient {
 
-    override suspend fun get(keys: List<String>) = mapOf(
+    override val delimiter = ":"
+    override val allSymbol = "*"
+
+    override suspend fun getAll(keys: List<String>) = flowOf(
         "device:0-123:name" to "hello, world",
         "device:0-123:version" to "1.0.0",
         "device:0-123:class" to "Camera",
@@ -71,4 +74,5 @@ class MockRedisClient: RedisClient {
 
     override suspend fun get(key: String) = Pair("mock", "mock")
     override suspend fun put(keys: List<Pair<String, String>>) {}
+    override suspend fun delete(values: List<Pair<String, String>>) {}
 }

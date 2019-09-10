@@ -14,10 +14,7 @@ import javax.tools.Diagnostic
 class RedisClassProcessor: AbstractProcessor() {
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
-
-    override fun getSupportedAnnotationTypes(): Set<String> {
-        return setOf(RedisClass::class.java.canonicalName)
-    }
+    override fun getSupportedAnnotationTypes() = setOf(RedisClass::class.java.canonicalName)
     override fun getSupportedOptions() = setOf(SUFFIX_OPTION, GENERATE_KOTLIN_CODE_OPTION, GENERATE_ERROR)
 
     companion object {
@@ -55,10 +52,10 @@ class RedisClassProcessor: AbstractProcessor() {
                 .createParser(elements)
     }
 
-    fun printWarning(msg: String) {
+    private fun printWarning(msg: String) {
         processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, msg)
     }
-    fun printError(msg: String) {
+    private fun printError(msg: String) {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg)
     }
 

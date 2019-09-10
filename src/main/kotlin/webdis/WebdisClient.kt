@@ -8,6 +8,7 @@ import network.RedisClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -18,7 +19,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
+@FlowPreview
 class WebdisClient(private val url: String): RedisClient {
+
+    override val delimiter = ":"
+    override val allSymbol = "*"
 
     private val gson = Gson()
 
@@ -40,17 +45,16 @@ class WebdisClient(private val url: String): RedisClient {
         /0
         """.trimIndent()
 
-    override suspend fun get(keys: List<String>) = keys
-        .map {
-            getScript(it)
-        }
-        .map { httpClient.post<EvalResponse>(url) { body = it } }
-        .flatMap { it.result }
-        .map {
-            val (key, value) = it.split("=")
-            key to value
-        }
-        .toMap()
+    override suspend fun getAll(keys: List<String>) = flow {
+        keys
+            .map {
+                getScript(it)
+            }
+            .map { httpClient.post<EvalResponse>(url) { body = it } }
+            .flatMap { it.result }
+            .map { it.split("=") }
+            .forEach { (key, value) -> emit(key to value) }
+    }
 
     override suspend fun get(key: String) = key to httpClient.get<GetResponse>("$url/GET/$key").result
 
@@ -120,7 +124,7 @@ class WebdisClient(private val url: String): RedisClient {
             }
         }
         return flow { messages
-            .map { key -> get(key) }
+            .map { key -> getAll(key) }
             .collect { (key, value) -> emit(key to value) }
         }
     }

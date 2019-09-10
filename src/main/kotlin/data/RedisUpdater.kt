@@ -7,8 +7,8 @@ import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
 
 
-fun Any.copyWith(parsingContext: ParsingContext): Any {
-    val copyConstructor = getCopyConstructor()
+fun <T : Any> T.copyWith(parsingContext: ParsingContext): T {
+    val copyConstructor = getCopyConstructor<T>()
 
     val value = when(parsingContext.result) {
         is ParsingContext -> {
@@ -26,13 +26,13 @@ fun Any.copyWith(parsingContext: ParsingContext): Any {
     )
 }
 
-private fun Any.getCopyConstructor(): KFunction<Any> {
+private fun <T : Any> T.getCopyConstructor(): KFunction<T> {
     try {
         return this::class.memberFunctions
-                .first { it.name == "copyWith" } as KFunction<Any>
+                .first { it.name == "copy" } as KFunction<T>
     } catch (ex: Exception) {
         throw NoSuchElementException(
-                "No \"copyWith\" constructor for ${this::class}. " +
-                        "You should use \"data class\" or provide your own copyWith constructor")
+                "No \"copy\" constructor for ${this::class}. " +
+                        "You should use \"data class\" or provide your own copy constructor")
     }
 }

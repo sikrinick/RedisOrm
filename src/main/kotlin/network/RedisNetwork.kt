@@ -1,12 +1,8 @@
 package network
 
-import kotlinx.coroutines.channels.filterNotNull
-import kotlinx.coroutines.channels.map
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import module.RedisClass
-import network.requests.GetRequest
-import network.requests.UpdateRequest
 import parsing.RedisParser
 import kotlin.reflect.KClass
 
@@ -14,40 +10,41 @@ class RedisNetwork(
     private val redisClient: RedisClient,
     redisClasses: List<Pair<KClass<*>, RedisClass>>
 ) {
-    private val redisParser = RedisParser(redisClasses)
+    private val redisParser = RedisParser(
+        classes = redisClasses,
+        delimiter = redisClient.delimiter,
+        allSymbol = redisClient.allSymbol
+    )
 
     private val allRequest by lazy { redisClasses
-            .map { (clazz, redisClass) -> clazz to redisClass.name }
-            .map { (clazz, redisName) ->
-                GetRequest(clazz, redisName).create()
+            .map { (clazz, _) ->
+                redisParser.createGetRequest(clazz)
             }
             .flatten()
     }
 
-    suspend fun getAll() = redisParser.parse(
-        redisClient.get(allRequest)
-    )
+    suspend fun getAll() = redisClient.getAll(allRequest)
+        .map { (key, value) -> redisParser.parseFromRedis(key, value) }
 
     suspend fun subscribe() = redisClient.subscribe(allRequest)
-        .map { (key, value) -> redisParser.parse(key, value) }
+        .map { (key, value) -> redisParser.parseFromRedis(key, value) }
         .filterNotNull()
 
 
-    suspend fun update(old: Any, new: Any) {
-        val changes = UpdateRequest(old, new).create()
+    suspend fun <T : Any> update(old: T, new: T) {
+        val changes = redisParser.createUpdateRequest(old, new)
         redisClient.put(changes)
     }
 
-    suspend fun add(obj: Any) {
+    suspend fun <T : Any> add(obj: T) {
+        val changes = redisParser.createAddRequest(obj)
+        redisClient.put(changes)
         //todo
     }
 
-    suspend fun delete(obj: Any) {
+    suspend fun <T : Any> delete(obj: T) {
+        //val changes = redisParser.createDeleteRequest(obj)
         //todo
     }
 
-    companion object {
-        const val DELIMITER = ":"
-        const val ALL = "*"
-    }
 }

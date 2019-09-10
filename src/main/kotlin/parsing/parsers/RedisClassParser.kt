@@ -11,14 +11,14 @@ import kotlin.reflect.KClass
 
 class RedisClassParser(
         private val clazz: KClass<*>
-): RedisTypeParser() {
+): RedisTypeParser<ParsingContext?>() {
 
-    private val idParam = clazz
+    val idParam = clazz
             .getConstructorParametersWith<RedisId>()
             ?.firstOrNull()
             ?.first
 
-    private val parameters = clazz
+    val parameters = clazz
             .getConstructorParametersWith<RedisKey>()
             ?.map { (kparam, redisKey) -> RedisClassParameter(kparam, redisKey.name) }
             ?: emptyList()
@@ -38,7 +38,7 @@ class RedisClassParser(
         }
         .toMap()
 
-    override fun parse(keys: Queue<String>, value: String): ParsingContext? {
+    override fun parseFromRedis(keys: Queue<String>, value: String): ParsingContext? {
         val id = if (hasId) keys.poll() else null
         val paramParser = paramParsers[keys.poll()] ?: return null
 
@@ -52,5 +52,10 @@ class RedisClassParser(
             kparam,
             result
         )
+    }
+
+    override fun parseToRedis(keys: Queue<String>, value: ParsingContext?): String {
+
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
