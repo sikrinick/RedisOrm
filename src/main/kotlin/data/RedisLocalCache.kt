@@ -1,28 +1,23 @@
 package data
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.flow.*
 import kotlin.reflect.KClass
 
 @FlowPreview
+@ExperimentalCoroutinesApi
 class RedisLocalCache(
     vararg classes: KClass<*>
 ) {
 
-    private val ioScope = CoroutineScope(Dispatchers.IO)
     private val cache = classes
-            .map { clazz -> clazz to RedisTable<Any>(ioScope) }
+            .map { clazz -> clazz to RedisTable<Any>() }
             .toMap()
 
     fun <T : Any> get(clazz: KClass<T>, id: String?) = table(clazz)[id]
     fun <T : Any> getAll(clazz: KClass<T>) = table(clazz).getAll()
-    fun <T : Any> set(clazz: KClass<T>, id: String?, new: T) = table(clazz).set(id, new)
+    suspend fun <T : Any> set(clazz: KClass<T>, id: String?, new: T) = table(clazz).set(id, new)
     fun <T : Any> delete(clazz: KClass<T>, id: String?) = table(clazz).delete(id)
 
     fun <T : Any> observe(clazz: KClass<T>, id: String? = null) = table(clazz).observe(id)
@@ -30,33 +25,34 @@ class RedisLocalCache(
 
     private fun <T : Any> table(clazz: KClass<T>) = (cache[clazz] ?: error("There is not such class ${clazz.simpleName}")) as RedisTable<T>
 
-    fun unsafeSet(clazz: KClass<*>, id: String?, new: Any) = unsafeTable(clazz).set(id, new)
+    suspend fun unsafeSet(clazz: KClass<*>, id: String?, new: Any) = unsafeTable(clazz).set(id, new)
     private fun unsafeTable(clazz: KClass<*>) = (cache[clazz] ?: error("There is not such class ${clazz.simpleName}"))
 }
 
 @FlowPreview
-class RedisTable<T : Any>(
-    private val ioScope: CoroutineScope
-) {
+@ExperimentalCoroutinesApi
+class RedisTable<T : Any> {
 
     private val table = mutableMapOf<String?, T>()
-    private val allCollectors = mutableSetOf<FlowCollector<Collection<T>>>()
-    private val collectors = mutableMapOf<String?, MutableSet<FlowCollector<T>>>()
+    private val allChannel: BroadcastChannel<Collection<T>> = ConflatedBroadcastChannel()
+    private val channels = mutableMapOf<String?, MutableSet<SendChannel<T>>>()
 
     fun getAll(): Collection<T> = table.values
 
     operator fun get(id: String?) = table[id]
 
-    operator fun set(id: String?, new: T) {
+    suspend fun set(id: String?, new: T) {
         val old = table[id]
         table[id] = new
         if (old != new) {
-            collectors[id]?.forEach {
-                ioScope.launch { it.emit(new) }
+            channels[id]?.forEach {
+                //ioScope.launch {
+                    it.send(new)
+                //}
             }
-            allCollectors.forEach {
-                ioScope.launch { it.emit(getAll()) }
-            }
+            //ioScope.launch {
+                allChannel.send(getAll())
+            //}
         }
     }
 
@@ -64,23 +60,18 @@ class RedisTable<T : Any>(
         table.remove(id)
     }
 
-    fun observeAll() = flow {
-        emit(getAll())
-        allCollectors.add(this)
-    }.onCompletion {
-        allCollectors.remove(this)
-    }.flowOn(ioScope.coroutineContext)
+    fun observeAll() = allChannel.asFlow()
 
-
-    fun observe(id: String? = null) = flow {
-        emit(get(id))
-        collectors.getOrPut(id) { mutableSetOf() }.add(this)
-    }.onCompletion {
-        collectors[id]?.also {
-            it.remove(this)
-            if (it.isEmpty()) collectors.remove(id)
-        }
+    fun observe(id: String? = null) = channelFlow<T> {
+        channels.getOrPut(id) { mutableSetOf() }.add(channel)
+        get(id)?.let { send(it) }
+        awaitClose { channels.remove(id) }
     }
-    .flowOn(ioScope.coroutineContext)
-
+        //return channel.consumeAsFlow().onCompletion {
+        //    channels[id]?.also {
+         //       it.remove(channel)
+         //       if (it.isEmpty())
+         //   }
+       // }
+    //}
 }

@@ -1,14 +1,19 @@
 package mock_example
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import module.RedisOrm
 import network.RedisClient
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
-
+import network.requests.RedisSendingChange
 
 @FlowPreview
-suspend fun main() {
+@ExperimentalCoroutinesApi
+fun main() {
+
+    val job = Job()
+    val compScope = CoroutineScope(Dispatchers.Default + job)
+    val ioScope = CoroutineScope(Dispatchers.IO + job)
+
     val redisOrm = RedisOrm(
         MockRedisClient(),
 
@@ -22,11 +27,37 @@ suspend fun main() {
         HAEngine::class,
         Stb::class
     )
-    redisOrm.observeAll<Device>().collect { device ->
-        println(device)
-    }
-    redisOrm.start()
 
+    compScope.launch {
+        redisOrm.observe<Device>("0-123").collect { device ->
+            println(device)
+        }
+    }
+
+    ioScope.launch {
+        redisOrm.start()
+    }
+
+    runBlocking { delay(1000) }
+
+    compScope.launch {
+        println("Launched")
+        redisOrm.observeAll<Device>()
+            .onCompletion { println("Finished or cancelled observeAll") }
+            .collect { devices ->
+                println(devices)
+            }
+        println("Done")
+    }
+
+    compScope.launch {
+        delay(1000)
+        job.cancel()
+    }
+
+    runBlocking { job.join() }
+
+    println("Finished main")
 }
 
 class MockRedisClient: RedisClient {
@@ -73,6 +104,9 @@ class MockRedisClient: RedisClient {
 
 
     override suspend fun get(key: String) = Pair("mock", "mock")
-    override suspend fun put(keys: List<Pair<String, String>>) {}
-    override suspend fun delete(values: List<Pair<String, String>>) {}
+    override suspend fun applyChange(changes: List<RedisSendingChange>) {
+        println("Changes:")
+        changes.forEach { println(it) }
+        println("\n")
+    }
 }

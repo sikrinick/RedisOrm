@@ -1,17 +1,18 @@
 package parsing.parsers
 
+import module.RedisClass
 import module.RedisId
 import module.RedisKey
-import parsing.ParsingContext
-import parsing.RedisParsingSetup
-import parsing.getConstructorParametersWith
-import parsing.jvmType
+import parsing.*
 import java.util.*
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.jvmErasure
 
 class RedisClassParser(
-        private val clazz: KClass<*>
+    val clazz: KClass<*>
 ): RedisTypeParser<ParsingContext?>() {
+
+    val redisClassName = clazz.findAnnotation<RedisClass>()?.name
 
     val idParam = clazz
             .getConstructorParametersWith<RedisId>()
@@ -31,7 +32,7 @@ class RedisClassParser(
                 param.kparam,
                 when (val type = param.kparam.jvmType) {
                     in RedisParsingSetup.parsers -> RedisParsingSetup.parsers.getValue(type)
-                    Map::class -> createMapParser(param.kparam.type)
+                    Map::class -> createMapParser(param.kparam.type.arguments[1].type!!.jvmErasure)
                     else -> RedisClassParser(type)
                 }
             )
@@ -54,8 +55,4 @@ class RedisClassParser(
         )
     }
 
-    override fun parseToRedis(keys: Queue<String>, value: ParsingContext?): String {
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }

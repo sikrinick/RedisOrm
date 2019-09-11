@@ -3,26 +3,35 @@ package network.requests
 import module.RedisClass
 import parsing.RedisParsingSetup
 import parsing.findAnnotation
+import parsing.getProperty
 import parsing.jvmType
 import parsing.parsers.RedisClassParser
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmErasure
 
-class GetRequestFactory(
-    private val classParsers: Map<String, RedisClassParser>,
+class AllKeysFactory(
+    private val classParsers: Map<KClass<*>, RedisClassParser>,
     private val delimiter: String,
     private val allSymbol: String
 ) {
+    fun <T : Any> create(
+        obj: T
+    ): List<String> {
+        val clazz = obj::class
+        val classParser = classParsers[clazz] ?: return emptyList()
+
+        val idParam = classParser.idParam
+        val redisId = idParam?.let { clazz.getProperty(idParam.name).get(obj) }
+
+        return create(clazz, redisId.toString())
+    }
 
     fun create(
         clazz: KClass<*>,
         id: String? = null
     ): List<String> {
-        val name = clazz.findAnnotation<RedisClass>()?.name
-        val classParser = classParsers[name]
-        if (name == null || classParser == null) return emptyList()
-
-        val classPart = name + if (classParser.hasId) "$delimiter${id ?: allSymbol}$delimiter" else delimiter
+        val classParser = classParsers[clazz] ?: return emptyList()
+        val classPart = classParser.redisClassName + if (classParser.hasId) "$delimiter${id ?: allSymbol}$delimiter" else delimiter
 
         return classParser.parameters
             .map { redisParam ->

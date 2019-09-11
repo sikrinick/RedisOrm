@@ -9,10 +9,8 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
+import network.requests.RedisSendingChange
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -45,23 +43,23 @@ class WebdisClient(private val url: String): RedisClient {
         /0
         """.trimIndent()
 
-    override suspend fun getAll(keys: List<String>) = flow {
-        keys
-            .map {
-                getScript(it)
-            }
-            .map { httpClient.post<EvalResponse>(url) { body = it } }
-            .flatMap { it.result }
-            .map { it.split("=") }
-            .forEach { (key, value) -> emit(key to value) }
-    }
+    override suspend fun getAll(keys: List<String>) = keys
+        .asFlow()
+        .map { getScript(it) }
+        .map { httpClient.post<EvalResponse>(url) { body = it } }
+        .flatMapMerge { it.result.asFlow() }
+        .map { it.split("=") }
+        .map { (key, value) -> key to value }
 
     override suspend fun get(key: String) = key to httpClient.get<GetResponse>("$url/GET/$key").result
 
-    override suspend fun put(values: List<Pair<String, String>>) {
-        values
-            .map { (key, value) -> "$key/$value" }
-            .map { req -> httpClient.get<Any?>("$url/SET/$req") }
+    override suspend fun applyChange(changes: List<RedisSendingChange>) {
+        changes.forEach {
+            when(it) {
+                is RedisSendingChange.SetField -> httpClient.get<Any?>("$url/SET/${it.key}/${it.value}")
+                is RedisSendingChange.DelField -> httpClient.get<Any?>("$url/DEL/${it.key}")
+            }
+        }
     }
 
     override suspend fun subscribe(keys: List<String>): Flow<Pair<String, String>> {
@@ -123,9 +121,6 @@ class WebdisClient(private val url: String): RedisClient {
                 }
             }
         }
-        return flow { messages
-            .map { key -> getAll(key) }
-            .collect { (key, value) -> emit(key to value) }
-        }
+        return messages.map { key -> get(key) }
     }
 }
