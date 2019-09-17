@@ -15,3 +15,8 @@ annotation class RedisId
 annotation class RedisKey(
     val name: String
 )
+
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class RedisJson
+

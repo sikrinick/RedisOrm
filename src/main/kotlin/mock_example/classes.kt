@@ -2,6 +2,7 @@ package mock_example
 
 import module.RedisClass
 import module.RedisId
+import module.RedisJson
 import module.RedisKey
 
 
@@ -10,9 +11,9 @@ data class Device(
     @RedisId
     val id: String,
     @RedisKey("name")
-    val name: String,
+    val name: String = "",
     @RedisKey("version")
-    val version: String
+    val version: String = ""
 )
 
 @RedisClass("scene")
@@ -20,7 +21,7 @@ data class Scene(
     @RedisId
     val id: String,
     @RedisKey("name")
-    val name: String
+    val name: String = ""
 )
 
 @RedisClass("room")
@@ -28,7 +29,7 @@ data class Room(
     @RedisId
     val roomId: String,
     @RedisKey("name")
-    val roomName: String
+    val roomName: String = ""
 )
 
 
@@ -37,18 +38,18 @@ data class ComplicatedDevice(
     @RedisId
     val id: String,
     @RedisKey("state")
-    val state: String,
+    val state: String = "",
     @RedisKey("version")
-    val version: String,
+    val version: String = "",
     @RedisKey("meta")
-    val meta: Meta
+    val meta: Meta = Meta()
 ) {
 
     data class Meta(
         @RedisKey("name")
-        val name: String,
+        val name: String = "",
         @RedisKey("class")
-        val clazz: String
+        val clazz: String = ""
     )
 
 }
@@ -58,18 +59,18 @@ data class School(
     @RedisId
     val id: String,
     @RedisKey("director")
-    val director: String,
+    val director: String = "",
     @RedisKey("room")
-    val rooms: Map<String, SchoolRoom>
+    val rooms: Map<String, SchoolRoom> = emptyMap()
 ) {
 
     data class SchoolRoom(
         @RedisId
         val roomNumber: String,
         @RedisKey("name")
-        val name: String,
+        val name: String = "",
         @RedisKey("teacher")
-        val teacher: String
+        val teacher: String = ""
     )
 }
 
@@ -82,10 +83,10 @@ data class HAEngine(
 @RedisClass("stb")
 data class Stb(
     @RedisKey("upgrade")
-    val upgrade: Upgrade
+    val upgrade: Upgrade = Upgrade()
 ) {
     data class Upgrade(
         @RedisKey("bluetooth")
-        val bluetooth: String? = null
+        val bluetooth: String = ""
     )
 }

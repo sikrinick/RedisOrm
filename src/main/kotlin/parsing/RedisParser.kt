@@ -43,7 +43,7 @@ class RedisParser(
     fun <T: Any> createChangeRequest(old: T?, new: T) = setRequestFactory.create(old, new)
     fun <T: Any> createDeleteRequest(old: T) = objectDeleteFactory.create(old)
 
-    fun parseFromRedis(redisKey: String, redisValue: String): ParsingContext? {
+    fun parseFromRedis(redisKey: String, redisValue: String?): ParsingContext? {
         val keys = LinkedList(redisKey.split(delimiter))
         return parsersByRedisName[keys.poll()]?.parseFromRedis(keys, redisValue)
     }

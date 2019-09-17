@@ -37,7 +37,3 @@ fun KClass<*>.getProperty(name: String?): KProperty1<Any, *> {
         throw Exception("Property \"$name\" in $this should be PUBLIC")
     }
 }
-
-fun <F, S> Flow<Pair<F?, S?>>.filterPairNotNull() = this
-        .filter { (f, s) -> f != null && s != null }
-        .map { (f, s) -> Pair(f!!, s!!) }

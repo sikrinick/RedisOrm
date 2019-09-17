@@ -11,7 +11,6 @@ import network.requests.RedisSendingChange
 fun main() {
 
     val job = Job()
-    val compScope = CoroutineScope(Dispatchers.Default + job)
     val ioScope = CoroutineScope(Dispatchers.IO + job)
 
     val redisOrm = RedisOrm(
@@ -28,36 +27,18 @@ fun main() {
         Stb::class
     )
 
-    compScope.launch {
-        redisOrm.observe<Device>("0-123").collect { device ->
-            println(device)
-        }
-    }
+    redisOrm.observe<School>("1")
+        //.onEach { device -> println(device) }
+        .launchIn(ioScope)
 
-    ioScope.launch {
-        redisOrm.start()
-    }
+    redisOrm.observeAll<School>()
+        .onEach { devices -> println(devices) }
+        .onCompletion { println("Finished or cancelled observeAll") }
+        .launchIn(ioScope)
 
-    runBlocking { delay(1000) }
-
-    compScope.launch {
-        println("Launched")
-        redisOrm.observeAll<Device>()
-            .onCompletion { println("Finished or cancelled observeAll") }
-            .collect { devices ->
-                println(devices)
-            }
-        println("Done")
-    }
-
-    compScope.launch {
-        delay(1000)
-        job.cancel()
-    }
+    redisOrm.start()
 
     runBlocking { job.join() }
-
-    println("Finished main")
 }
 
 class MockRedisClient: RedisClient {
@@ -65,7 +46,7 @@ class MockRedisClient: RedisClient {
     override val delimiter = ":"
     override val allSymbol = "*"
 
-    override suspend fun getAll(keys: List<String>) = flowOf(
+    override fun getAll(keys: List<String>) = flowOf(
         "device:0-123:name" to "hello, world",
         "device:0-123:version" to "1.0.0",
         "device:0-123:class" to "Camera",
@@ -96,14 +77,14 @@ class MockRedisClient: RedisClient {
         "stb:upgrade:bluetooth" to "enabled"
     )
 
-    override suspend fun subscribe(keys: List<String>) = flowOf(
+    override fun subscribe(keys: List<String>) = flowOf(
         "device:0-123:name" to "Big fucking change!",
         "haengine:version" to "2",
         "stb:upgrade:bluetooth" to "disabled"
     )
 
-
     override suspend fun get(key: String) = Pair("mock", "mock")
+
     override suspend fun applyChange(changes: List<RedisSendingChange>) {
         println("Changes:")
         changes.forEach { println(it) }

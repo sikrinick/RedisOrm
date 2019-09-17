@@ -10,7 +10,7 @@ class RedisClassParserCreation(
         private val destDir: String,
         private val printError: (String) -> Unit
 ) {
-    private var hasId: Boolean = false
+    private val hasId: Boolean = false
 
     fun createParser(element: Element) {
 

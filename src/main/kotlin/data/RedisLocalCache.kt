@@ -37,7 +37,7 @@ class RedisTable<T : Any> {
     private val allChannel: BroadcastChannel<Collection<T>> = ConflatedBroadcastChannel()
     private val channels = mutableMapOf<String?, MutableSet<SendChannel<T>>>()
 
-    fun getAll(): Collection<T> = table.values
+    fun getAll(): List<T> = table.values.toList()
 
     operator fun get(id: String?) = table[id]
 
@@ -46,13 +46,9 @@ class RedisTable<T : Any> {
         table[id] = new
         if (old != new) {
             channels[id]?.forEach {
-                //ioScope.launch {
-                    it.send(new)
-                //}
+                it.send(new)
             }
-            //ioScope.launch {
-                allChannel.send(getAll())
-            //}
+            allChannel.send(getAll())
         }
     }
 
@@ -67,11 +63,4 @@ class RedisTable<T : Any> {
         get(id)?.let { send(it) }
         awaitClose { channels.remove(id) }
     }
-        //return channel.consumeAsFlow().onCompletion {
-        //    channels[id]?.also {
-         //       it.remove(channel)
-         //       if (it.isEmpty())
-         //   }
-       // }
-    //}
 }

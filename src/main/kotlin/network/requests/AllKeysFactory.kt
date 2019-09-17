@@ -1,10 +1,9 @@
 package network.requests
 
-import module.RedisClass
 import parsing.RedisParsingSetup
-import parsing.findAnnotation
 import parsing.getProperty
 import parsing.jvmType
+import parsing.parsers.RedisClassParameter
 import parsing.parsers.RedisClassParser
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmErasure

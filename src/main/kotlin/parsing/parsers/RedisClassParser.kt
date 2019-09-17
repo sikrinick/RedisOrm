@@ -10,7 +10,7 @@ import kotlin.reflect.jvm.jvmErasure
 
 class RedisClassParser(
     val clazz: KClass<*>
-): RedisTypeParser<ParsingContext?>() {
+): RedisTypeParser<ParsingContext>() {
 
     val redisClassName = clazz.findAnnotation<RedisClass>()?.name
 
@@ -21,7 +21,7 @@ class RedisClassParser(
 
     val parameters = clazz
             .getConstructorParametersWith<RedisKey>()
-            ?.map { (kparam, redisKey) -> RedisClassParameter(kparam, redisKey.name) }
+            ?.map { (param, redisKey) -> RedisClassParameter(param, redisKey.name) }
             ?: emptyList()
 
     val hasId = idParam != null
@@ -39,7 +39,7 @@ class RedisClassParser(
         }
         .toMap()
 
-    override fun parseFromRedis(keys: Queue<String>, value: String): ParsingContext? {
+    override fun parseFromRedis(keys: Queue<String>, value: String?): ParsingContext? {
         val id = if (hasId) keys.poll() else null
         val paramParser = paramParsers[keys.poll()] ?: return null
 
